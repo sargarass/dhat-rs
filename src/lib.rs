@@ -935,7 +935,7 @@ struct IgnoreAllocs {
     was_already_ignoring_allocs: bool,
 }
 
-thread_local!(static IGNORE_ALLOCS: Cell<bool> = Cell::new(false));
+thread_local!(static IGNORE_ALLOCS: Cell<bool> = const { Cell::new(false) });
 
 impl IgnoreAllocs {
     fn new() -> Self {
@@ -1189,26 +1189,26 @@ fn new_backtrace_inner(
     // Get the backtrace, trimming if necessary at the top and bottom and for
     // length.
     let mut frames = Vec::new();
-    unsafe {
-        backtrace::trace_unsynchronized(|frame| {
-            let ip = frame.ip() as usize;
-            if trim_backtraces.is_some() {
-                match frames_to_trim.get(&ip) {
-                    Some(TB::Top) => return true,     // ignore frame and continue
-                    Some(TB::Bottom) => return false, // ignore frame and stop
-                    _ => {}                           // use this frame
-                }
+    let frame_visitor = |frame: &backtrace::Frame| {
+        let ip = frame.ip() as usize;
+        if trim_backtraces.is_some() {
+            match frames_to_trim.get(&ip) {
+                Some(TB::Top) => return true,     // ignore frame and continue
+                Some(TB::Bottom) => return false, // ignore frame and stop
+                _ => {}                           // use this frame
             }
+        }
 
-            frames.push(frame.clone().into());
+        frames.push(frame.clone().into());
 
-            if let Some(max_frames) = trim_backtraces {
-                frames.len() < max_frames // stop if we have enough frames
-            } else {
-                true // continue
-            }
-        });
-    }
+        if let Some(max_frames) = trim_backtraces {
+            frames.len() < max_frames // stop if we have enough frames
+        } else {
+            true // continue
+        }
+    };
+    // who cares about Windows' dbghelp?
+    unsafe { backtrace::trace_unsynchronized(frame_visitor); }
     Backtrace(frames.into())
 }
 

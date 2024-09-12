@@ -14,8 +14,8 @@ categories = ["development-tools::profiling"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-backtrace = { version = "0.3.74"  }
-mintex = { git = "https://github.com/GoldsteinE/mintex", branch = "dont-use-sysinfo" }
+backtrace = { version = "0.3.69"  }
+mintex = "0.1.3"
 rustc-hash = "1.1"
 lazy_static = "1.4"
 parking_lot = "0.12"
