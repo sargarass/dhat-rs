@@ -15,7 +15,7 @@ categories = ["development-tools::profiling"]
 
 [dependencies]
 backtrace = { version = "0.3.74"  }
-mintex = { git = "https://github.com/GoldsteinE/mintex", branch = "dont-use-sysinfo" }
+mintex = "0.1.3"
 rustc-hash = "1.1"
 lazy_static = "1.4"
 parking_lot = "0.12"
